@@ -1,0 +1,113 @@
+<!docType html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ceshi</title>
+        <script src="js/jquery-1.11.3.min.js"></script>
+    </head>
+    <body>
+        <div class="content"></div>
+        <script>
+            $(function(){
+                $.ajax({
+                    url:'/topic/product.htm',
+                    data:{},
+                    type:'post',
+                    dataType:'json',
+                    success:function(data){
+                        var nowTime = Date.parse(new Date());//获取服务器时间
+                        var time = new Date(nowTime);
+
+                        var week = time.getDay(); //获取星期几
+                        var year = time.getFullYear(); //获取年份
+                        var day = time.getDate(); //获取几号
+                        var month = time.getMonth()+1; //获取月份
+                        
+                        var fullday=0;//定义一个月多少天
+                        
+                        //判断是否是闰年
+                        if(!(year%4)){//可以整除，是闰年
+                            //判断月份是30天还是31天
+                            if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12){
+                                fullday = 31;
+                            }else if(month==2){
+                                fullday = 29;
+                            }else{
+                                fullday = 30;
+                            }   
+                        }else{//不可以整除，不是闰年
+                            //判断月份是30天还是31天
+                            if(month==1 || month==3 || month==5 || month==7 || month==8 || month==10 || month==12){
+                                fullday = 31;
+                            }else if(month==2){
+                                fullday = 28;
+                            }else{
+                                fullday = 30;
+                            }   
+                        }
+                        
+                        //根据今天周几来判断距离下一次周二还有几天
+                        var distance_day = 0;
+                        switch(week){
+                            case 1:
+                                distance_day = 1;
+                                break;
+                            case 2:
+                                distance_day = 7;
+                                break;
+                            case 3:
+                                distance_day = 6;
+                                break;
+                            case 4:
+                                distance_day = 5;
+                                break;
+                            case 5:
+                                distance_day = 4;
+                                break;
+                            case 6:
+                                distance_day = 3;
+                                break;
+                             case 0:
+                                distance_day = 2;
+                                break;
+                        }
+                        
+                        //计算下一个周二的年月日
+                        var end_time = '';
+                        if(day+distance_day>fullday){
+                            var next_distance = Math.abs(fullday-(day+distance_day)); //计算超过本月下周二是下个月的几号
+                            end_time = year+'/'+(month+1)+'/'+next_distance+' 09:00:00';
+                        }else{
+                            end_time = year+'/'+month+'/'+(day+distance_day)+' 09:00:00';
+                        }
+                        
+                        //倒计时
+                        var endtime_sjc = Date.parse(end_time); //计算时间戳
+                        var time_distance = (endtime_sjc - nowTime)/1000; //计算现在到结束时间的时间戳
+
+                        function countTime(time_distance){
+                            time_distance--;
+                            if(time_distance>0){
+                                var getDay = Math.floor(time_distance/(60*60*24));//天
+                                var getHour = Math.floor((time_distance - getDay*60*60*24)/(60*60));//小时
+                                var getMinute = Math.floor((time_distance - getDay*60*60*24 - getHour*60*60)/60);//分钟
+                                var getSecond = Math.floor(time_distance - getDay*60*60*24 - getHour*60*60 - getMinute*60);//秒
+                                
+                                $('.content').html(getDay+'天'+getHour+'时'+getMinute+'分'+getSecond+'秒');
+                                
+                            }else{
+                                $('.content').html('0天0时0分0秒');
+                            }
+                            setTimeout(function(){
+                                countTime(time_distance);
+                            },1000);
+                        }
+                        countTime(time_distance);
+                    },
+                    error:function(){}
+                });
+            });
+            
+        </script>
+    </body>
+</html>
